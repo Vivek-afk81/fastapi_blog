@@ -1,7 +1,10 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI,Request
+from fastapi.templating import Jinja2Templates
+
 
 app=FastAPI()
+templates=Jinja2Templates(directory="templates") 
+
 
 posts: list[dict] = [
     {
@@ -21,11 +24,15 @@ posts: list[dict] = [
 ]
 
 
-@app.get("/",response_class=HTMLResponse) #home route
-def home():
-    return f"<h1>{posts[0]["title"]}</h1>"
+@app.get("/",include_in_schema=False) #home route
+@app.get("/posts",include_in_schema=False) #we can stack the decorators,so multiple routes can use it
+def home(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "home.html",
+         {"posts":posts,"title":"Home"})
 
 @app.get("/api/posts")
 def get_posts():
-    return posts
+    return posts 
 

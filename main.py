@@ -1,8 +1,13 @@
 from fastapi import FastAPI,Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 
 
 app=FastAPI()
+
+app.mount("/static",StaticFiles(directory="static"),name="static")
+
 templates=Jinja2Templates(directory="templates") 
 
 
@@ -31,6 +36,20 @@ def home(request: Request):
         request,
         "home.html",
          {"posts":posts,"title":"Home"})
+
+#Place holders as layout.html already expects these page
+
+@app.get("/login", name="login_page")
+def login_page(request: Request):
+    return HTMLResponse("<h1>Login Page</h1>")
+
+@app.get("/register", name="register_page")
+def register_page(request: Request):
+    return HTMLResponse("<h1>Register Page</h1>")
+
+@app.get("/account", name="account_page")
+def account_page(request: Request):
+    return HTMLResponse("<h1>Account Page</h1>")
 
 @app.get("/api/posts")
 def get_posts():

@@ -30,7 +30,7 @@ posts: list[dict] = [
 
 
 @app.get("/",include_in_schema=False) #home route
-@app.get("/posts",include_in_schema=False) #we can stack the decorators,so multiple routes can use it
+@app.get("/posts",include_in_schema=False) #we can stack the decorators,so multiple routes can use same function here home
 def home(request: Request):
     return templates.TemplateResponse(
         request,

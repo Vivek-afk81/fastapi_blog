@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from pydantic import BaseModel 
 
 # Create the FastAPI app instance — this is the core of your API
 app = FastAPI()
@@ -66,4 +67,54 @@ def create_user(user: dict):  # accepts any JSON object as a plain dict — flex
     return {
         "message": "User created",
         "data": user            # echoes back whatever JSON was sent
+    }
+
+# PYDANTIC MODELS FOR VALIDATION 
+# Pydantic enforces types & required fields automatically
+# If the incoming JSON doesn't match the model, FastAPI returns a clear 422 error
+
+from pydantic import BaseModel  # import BaseModel from pydantic
+
+# Define the exact shape of a User — all fields are REQUIRED by default
+class User(BaseModel):
+    name: str       # must be a string
+    age: int        # must be an integer
+    email: str      # must be a string (use EmailStr for real email validation)
+
+
+# NESTED MODELS
+# Pydantic models can be nested inside each other to represent complex structures
+
+class Address(BaseModel):
+    city: str
+    pincode: int
+
+class Company(BaseModel):
+    company_name: str
+    industry: str
+    address: Address    # nested model — expects a full Address object inside the JSON
+
+
+# POST route — FastAPI validates the entire nested JSON before calling the function
+# Example request body:
+# {
+#   "company_name": "TechCorp",
+#   "industry": "IT",
+#   "address": { "city": "Lucknow", "pincode": 226001 }
+# }
+@app.post("/companies")
+def create_company(company: Company):
+    return {
+        "message": "Company created",
+        "data": company
+    }
+
+
+# POST route — validates using the flat User model
+# Example request body: { "name": "Mohit", "age": 25, "email": "mohit@email.com" }
+@app.post("/validated-user")
+def create_validated_user(user: User):
+    return {
+        "message": "User created",
+        "data": user
     }

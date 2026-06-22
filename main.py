@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Request
+from fastapi import FastAPI,Request,HTTPException,status 
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -29,8 +29,8 @@ posts: list[dict] = [
 ]
 
 
-@app.get("/",include_in_schema=False) #home route
-@app.get("/posts",include_in_schema=False) #we can stack the decorators,so multiple routes can use same function here home
+@app.get("/",include_in_schema=False,name="home") #home route
+@app.get("/posts",include_in_schema=False,name="posts ") #we can stack the decorators,so multiple routes can use same function here home
 def home(request: Request):
     return templates.TemplateResponse(
         request,
@@ -51,7 +51,10 @@ def register_page(request: Request):
 def account_page(request: Request):
     return HTMLResponse("<h1>Account Page</h1>")
 
-@app.get("/api/posts")
-def get_posts():
-    return posts 
+@app.get("/api/posts/{post_id}") # path parameter
+def get_posts(post_id: int):
+    for post in posts:
+        if post.get("id")==post_id:
+            return post
+    return {"error":"Post not found "} #this will return response 200 even if post is not found 
 

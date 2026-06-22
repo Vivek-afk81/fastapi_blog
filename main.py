@@ -54,3 +54,16 @@ def get_items(name: str = None, price: int = 10):
         "name": name,
         "price": price   # 
     }
+
+# REQUEST BODY
+# Unlike GET,in POST the data travels in the request BODY, not the URL
+# POST route — cannot be tested directly in browser; use Swagger UI at /docs
+
+@app.post("/create-user")
+def create_user(user: dict):  # accepts any JSON object as a plain dict — flexible but NO validation
+    # FastAPI automatically reads the JSON body and passes it as `user`
+    # Downside of dict: no type checking, no required fields, no error messages
+    return {
+        "message": "User created",
+        "data": user            # echoes back whatever JSON was sent
+    }

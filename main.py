@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 
 app=FastAPI()
@@ -13,8 +13,13 @@ class Todo(BaseModel):
 #create API
 @app.post("/todos")
 def create_to_dos(todo:Todo):
+    #duplication check
+    for existing in todos:
+        if existing.id==todo.id:
+            raise HTTPException(status_code=400,detail="Todo with this id already exists")
     todos.append(todo)
-    return {"message" : "TO-DO added","data":todo }
+    return {"message": "Todo added", "data": todo}
+
 
 #get API
 @app.get("/todos")
@@ -26,7 +31,7 @@ def get_to_do(todo_id:int):
     for todo in todos:
         if todo.id ==todo_id:
             return todo
-    return {"error":"Todo not found"}
+    raise HTTPException(status_code=404,detail="Todo not found")
 
 #update todos
 # PUT—replaces the entire todo object matched by id with the new one
@@ -37,10 +42,10 @@ def update_to_do(todo_id:int,updated_todo:Todo):
         if todo.id==todo_id:
             todos[idx]=updated_todo
             return {
-                "message":"Data Uploaded",
+                "message":"Todo Uploaded",
                 "data":updated_todo
             }
-    return {"error":"not found"}
+    raise HTTPException(status_code=404,detail="Todo not found")
 
 #delete api
 @app.delete("/todos/{todo_id}")
@@ -49,4 +54,4 @@ def delete_to_do(todo_id:int):
         if todo.id==todo_id:
             todos.pop(idx)
             return {"message":"data deleted"}
-    return {"error":"TODO NOT FOUND"}
+    raise HTTPException(status_code=404, detail="Todo not found")
